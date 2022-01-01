@@ -1,4 +1,4 @@
-# The OpenDislikeAPI Project or ODI for short
+# The OpenDislikeAPI Project
 Geting Dislikes Back For Youtube(TM), cause time is presious to at least not waste on junk.
 -----
 
