@@ -46,6 +46,7 @@ You can trust me for the following reasons:
 - The data you provide is pretty useless for me to cause any harm to you or your channel
 - The code is open source, hence, anyone can “peer review” it
 - I am just a 14-year-old dev, not Google or Facebook who would track you.
+- Also I would give a few big creators the ability to audit whats running on the servers.
 
 I heard that the data from the API does contain some stuff other than the dislike and like count that might be of certain business interest. Again I say, you need to trust me that I am not taking your data. I am just taking the dislike count and distributing it to everyone in need such as the RYD extensions and servers, so you just need to share the data and permissions with only one app.
 
