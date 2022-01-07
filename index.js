@@ -11,7 +11,6 @@ const Creator = require('./models/Creator');
 const config = require('./config/config');
 const { decrypt, encrypt } = require('./crypto');
 var jwt = require('jsonwebtoken');
-var ObjectID = require('mongodb').ObjectID;
 
 //import fetch
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
@@ -35,7 +34,7 @@ const redisClient = createClient({
     const oauth2Client = new google.auth.OAuth2(
     "896814890373-sa81ge5ttpf7uug7s1fs1u2sh7qap5h0.apps.googleusercontent.com",
     config.client_secret,
-    "http://localhost:3000/oauth2/callback"
+    `${process.env.DOMAIN || 'http://localhost:3000'}/oauth2/callback`,
     );
 
   
@@ -50,6 +49,7 @@ const redisClient = createClient({
        const url = oauth2Client.generateAuthUrl({
         access_type: 'offline',
         scope: ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/youtube.readonly', 'https://www.googleapis.com/auth/yt-analytics.readonly'],
+        prompt: 'consent'
         });
         res.send(url); 
     });
@@ -91,16 +91,14 @@ const redisClient = createClient({
     });
 
     app.get('/api/dislike', async (req, res)=>{
-    const {id, cid, key} = req.query;
-    
-    if(cid === undefined || id === undefined){
-        return res.send('Please provide a key to access the API (?key=<apikey>) also provide a channel id (?cid=<channelid>) and a video id (?id=<videoid>)');
+    const {id, cid, key} = req.query; // get the ids from the query parameters
+    if(cid === undefined || id === undefined){ // check if the ids are provided
+        return res.status(200).send('Please provide a key to access the API key (?key=<apikey>) also provide a channel id (?cid=<channelid>) and a video id (?id=<videoid>)'); // if not return an error
     }
     const get = await redisClient.get(id);
-    
-
     if(get != null && get != undefined){
-        return res.send(get)
+       res.header('Cloudflare-CDN-Cache-Control', 'public, max-age=1200, stale-if-error=10800');
+       return res.status(200).send({dislikes: get.d, likes: get.l});
     } else {
         // get the tokens and get the real dislike count from yt-api
         Creator.findOne({cid: cid}, async (err, user) => {
@@ -112,7 +110,7 @@ const redisClient = createClient({
             }
             const refresh_token = await decrypt(user.rt);
             const oauth2Clientuser = new google.auth.OAuth2(
-                "896814890373-7ibmr3u046f2chequok7ip4ar20dpuoo.apps.googleusercontent.com",
+                "896814890373-sa81ge5ttpf7uug7s1fs1u2sh7qap5h0.apps.googleusercontent.com",
                 config.client_secret,
                 process.env.redirect_url
             );
@@ -122,19 +120,29 @@ const redisClient = createClient({
 
             const auth = await oauth2Clientuser.getRequestHeaders();
             // get youtube dislike count with analytics api
-            const res_analytics = await fetch(`https://youtubeanalytics.googleapis.com/v2/reports?filters=video==${id}&endDate=2022-01-05&ids=channel==MINE&metrics=dislikes&dimensions=video&startDate=2005-01-01&access_token=${auth.Authorization.split(' ')[1]}`);
+            const res_analytics = await fetch(`https://youtubeanalytics.googleapis.com/v2/reports?filters=video==${id}&endDate=2022-01-05&ids=channel==MINE&metrics=dislikes,likes&dimensions=video&startDate=2005-01-01&access_token=${auth.Authorization.split(' ')[1]}`);
             const analytics = await res_analytics.json();
             const dislike_count = analytics.rows[0][1];
-            res.status(200).send(dislike_count.toString());
+            const like_count = analytics.rows[0][2];
+            res.status(200).send({dislikes: dislike_count, likes: like_count});
             // save the dislike count in redis after sending the response
-            await redisClient.set(id, dislike_count, {expire: 10800});
+            await redisClient.set(id, {d: dislike_count, l: like_count});
+            await redisClient.expire(id, 10800);
         })
     }
-
     });
 
 
-
-app.listen(3000, () => {
-    console.log('Server started on port http://localhost:3000');
+app.listen( process.env.PORT || 3000, () => {
+    console.log(`Server started on port https://${process.env.RAILWAY_STATIC_URL || 'dislike.hrichik.xyz'}`);
+    //server info
+    console.log(`
+    Server info
+    RAILWAY_GIT_COMMIT_SHA: ${process.env.RAILWAY_GIT_COMMIT_SHA}, 
+    RAILWAY_GIT_AUTHOR: ${process.env.RAILWAY_GIT_AUTHOR}, 
+    RAILWAY_GIT_BRANCH: ${process.env.RAILWAY_GIT_BRANCH}, 
+    RAILWAY_GIT_REPO_OWNER: ${process.env.RAILWAY_GIT_REPO_OWNER}, 
+    RAILWAY_GIT_COMMIT_MESSAGE: ${process.env.RAILWAY_GIT_COMMIT_MESSAGE}, 
+    RAILWAY_HEALTHCHECK_TIMEOUT_SEC: ${process.env.RAILWAY_HEALTHCHECK_TIMEOUT_SEC}, 
+    `)
 });

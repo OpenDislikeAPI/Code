@@ -106,4 +106,6 @@ dist
 # Environment Secrets
 config/keydev
 config/client_secretdev
+config/key
+config/client_secret
 
