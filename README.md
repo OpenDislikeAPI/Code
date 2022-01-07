@@ -11,7 +11,15 @@ I plan to make a Nodejs API to get the dislike data from Creators such as [Linus
 As Linus said in his [video](https://youtu.be/Nz9b0oJw69I?t=340) **creators can help**, so let's hope they do their part :)
 Also, he said, it gets pretty shady pretty fast, we are making this thing open source so at least it gets... ah, less shady I guess? also you can view our code and check what we collect and understand why we collect. We plan to make it in such a way that it becomes easy for anyone to sign up and basically no maintenance is needed after that.
 
-# So what's your plan?
+# Plan
+
+### Security
+You: do you really expect me to belive you?
+Me: Yes.
+You: tf why?
+Me: 1) read the last part of the readme
+    2) I really don't get access to your data, only the server does. To be clear, I can still view the refresh tokens, but its useless? why you ask? cause its encrypted by a key i don't know as its provided by a third party like the RYD or LTT or any other company or individiual a vote decides.
+
 
 ### How will this work?
 
@@ -43,17 +51,19 @@ Heres’ a list of things we might store about the creator along with the reason
 You can trust me for the following reasons:
 
 - Pinky Promise
-- The data you provide is pretty useless for me to cause any harm to you or your channel
+- Also I don't get access to your data as its encrypted in storage (the refresh token) with a key i don't know (more about it at the 'Security' part)
+- The data you provide is pretty useless for me to cause any harm to you or your channel (most i could do is maybe share it with advertisers you lied to about your stats)
 - The code is open source, hence, anyone can “peer review” it
-- I am just a 14-year-old dev, not Google or Facebook who would track you.
-- Also I would give a few big creators the ability to audit whats running on the servers.
+- The server is hosted on railway.app. Any creator who wants to audit can come and email me on dislike@dogegram.xyz
+- I am just a 14-year-old dev, not Google or Facebook who would track you nor someone evil.
+- Also I would give a few big creators the ability to audit whats running on the servers at any moment.
 
-I heard that the data from the API does contain some stuff other than the dislike and like count that might be of certain business interest. Again I say, you need to trust me that I am not taking your data. I am just taking the dislike count and distributing it to everyone in need such as the RYD extensions and servers, so you just need to share the data and permissions with only one app.
+I heard that the data from the API does contain some stuff other than the dislike and like count that might be of certain business interest. Again I say, you don't need to trust me that I am not taking your data, I can't genrate a access token hence can't take your data either. I am just taking the dislike count and distributing it to everyone in need such as the RYD extensions and servers, so you just need to share the data and permissions with only one app and only one.
 
 I thought about getting the dislike data from sources other than the official API, using a method similar to whats told in https://github.com/Anarios/return-youtube-dislike/issues/392 of the RYD Repo but it’s too much work for creators and easy to be abused and also as [https://github.com/Anarios/return-youtube-dislike/issues/396#issuecomment-1003646970](https://github.com/Anarios/return-youtube-dislike/issues/396#issuecomment-1003646970) suggested, its just isn’t viable.
 
 <aside>
-🧑‍💻 Willing to contribute? Thanks! You can make a PR and I would check it out!
+:computer: Willing to contribute? Thanks! You can make a PR and I would check it out!
 </aside>
 
 ###### Better formatted version on Notion: https://dogegram.notion.site/OpenDislikeAPI-b83df4347bca43b6a7c1b64acfb7a7f8
