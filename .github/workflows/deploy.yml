@@ -21,13 +21,13 @@ jobs:
       uses: finnp/create-file-action@1.0.0
       env:
         FILE_NAME: "config/key"
-        FILE_DATA: "${{ secrects.ENC_KEY }}"
+        FILE_DATA: "${{ secrets.ENC_KEY }}"
         
     - name: Create File With CLIENT_SECRET
       uses: finnp/create-file-action@1.0.0
       env:
         FILE_NAME: "config/client_secrect"
-        FILE_DATA: "${{ secrects.CLIENT_SECRET }}"
+        FILE_DATA: "${{ secrets.CLIENT_SECRET }}"
         
     - name: "Install All Dependencies via NPM"
       run: npm i
@@ -35,5 +35,5 @@ jobs:
     - name: "Deploy to railway"
       run: railway up
       env: 
-        RAILWAY_TOKEN: "${{ secrects.RAILWAY_TOKEN }}"
+        RAILWAY_TOKEN: "${{ secrets.RAILWAY_TOKEN }}"
         
