@@ -8,22 +8,32 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    
     - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
+    
+    - name: Use Node.js v17.3.0
       uses: actions/setup-node@v2
       with:
         node-version: v17.3.0
         cache: 'npm'
-    - uses: "finnp/create-file-action@master"
+        
+    - name: Create File With ENC_KEY
+      uses: finnp/create-file-action@1.0.0
       env:
         FILE_NAME: "config/key"
-        FILE_DATA: "{{ secrects.ENC_KEY }}"
-    - uses: "finnp/create-file-action@master"
+        FILE_DATA: "${{ secrects.ENC_KEY }}"
+        
+    - name: Create File With CLIENT_SECRET
+      uses: finnp/create-file-action@1.0.0
       env:
         FILE_NAME: "config/client_secrect"
-        FILE_DATA: "{{ secrects.CLIENT_SECRET }}"
-    - run: npm i
-    - run: railway up
+        FILE_DATA: "${{ secrects.CLIENT_SECRET }}"
+        
+    - name: "Install All Dependencies via NPM"
+      run: npm i
+    
+    - name: "Deploy to railway"
+      run: railway up
       env: 
-        RAILWAY_TOKEN: "{{ secrects.RAILWAY_TOKEN }}"
+        RAILWAY_TOKEN: "${{ secrects.RAILWAY_TOKEN }}"
         
