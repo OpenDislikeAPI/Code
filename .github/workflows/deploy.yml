@@ -32,8 +32,8 @@ jobs:
     - name: "Install All Dependencies via NPM"
       run: npm i
     
-    - name: "Deploy to railway"
-      run: railway up
+    - name: "Install RailwayCLI and Deploy to railway"
+      run: npm i -g @railway/cli && railway up
       env: 
         RAILWAY_TOKEN: "${{ secrets.RAILWAY_TOKEN }}"
         
