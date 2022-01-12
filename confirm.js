@@ -1,7 +1,6 @@
 const crypto = require('crypto')
 const fs = require('fs')
 const path = require('path');
-const ms = require('ms');
 const { msToSec } = require('@sentry/tracing/dist/utils');
 const enc_key = process.env.ENC_KEY
 const client_secret = process.env.CLIENT_SECRET
@@ -26,4 +25,4 @@ console.log('would deploy after 3 seconds')
 setTimeout(() => {
     console.log("3 seconds have passed")
     console.log("Deploy has been resumed")
-}, ms('3s'));
+}, 3000);
