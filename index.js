@@ -1,5 +1,7 @@
 //import all the modules needed
 const express = require('express');
+const Sentry = require('@sentry/node');
+const Tracing = require("@sentry/tracing");
 const app = express();
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -9,8 +11,22 @@ const { auth } = require('google-auth-library');
 const { connect_db } = require('./db');
 const Creator = require('./models/Creator');
 const config = require('./config/config');
+const fs = require('fs');
+const path = require('path');
 const { decrypt, encrypt } = require('./crypto');
 var jwt = require('jsonwebtoken');
+
+Sentry.init({
+    dsn: "https://ceb1cd8d2241419abfa643d56952be1c@o1111480.ingest.sentry.io/6140762",
+    integrations: [
+      new Sentry.Integrations.Http({ tracing: true }),
+      new Tracing.Integrations.Express({ app }),
+    ],
+    tracesSampleRate: 1.0,
+  });
+
+  app.use(Sentry.Handlers.requestHandler());
+  app.use(Sentry.Handlers.tracingHandler());
 
 //import fetch
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
@@ -37,6 +53,8 @@ const redisClient = createClient({
     `${process.env.DOMAIN || 'http://localhost:3000'}/oauth2/callback`,
     );
 
+    // get the deploy id
+    const deploy_id = fs.readFileSync(path.join(__dirname, 'deploy_id'), 'utf8');
   
     // main code
 
@@ -97,8 +115,9 @@ const redisClient = createClient({
     }
     const get = await redisClient.get(id);
     if(get != null && get != undefined){
+       const d = get.split(':')
        res.header('Cloudflare-CDN-Cache-Control', 'public, max-age=1200, stale-if-error=10800');
-       return res.status(200).send({dislikes: get.d, likes: get.l});
+       return res.status(200).send({dislikes: d[0], likes: d[1]});
     } else {
         // get the tokens and get the real dislike count from yt-api
         Creator.findOne({cid: cid}, async (err, user) => {
@@ -120,29 +139,34 @@ const redisClient = createClient({
 
             const auth = await oauth2Clientuser.getRequestHeaders();
             // get youtube dislike count with analytics api
-            const res_analytics = await fetch(`https://youtubeanalytics.googleapis.com/v2/reports?filters=video==${id}&endDate=2022-01-05&ids=channel==MINE&metrics=dislikes,likes&dimensions=video&startDate=2005-01-01&access_token=${auth.Authorization.split(' ')[1]}`);
+            const res_analytics = await fetch(`https://youtubeanalytics.googleapis.com/v2/reports?filters=video==${id}&endDate=2099-01-01&ids=channel==MINE&metrics=dislikes,likes&dimensions=video&startDate=2005-01-01&access_token=${auth.Authorization.split(' ')[1]}`);
             const analytics = await res_analytics.json();
             const dislike_count = analytics.rows[0][1];
             const like_count = analytics.rows[0][2];
             res.status(200).send({dislikes: dislike_count, likes: like_count});
             // save the dislike count in redis after sending the response
-            await redisClient.set(id, {d: dislike_count, l: like_count});
+            await redisClient.set(id, `${dislike_count}:${like_count}`);
             await redisClient.expire(id, 10800);
         })
     }
+    });
+
+    app.get('/brainfry/verify', async (req, res) => {
+        const token = jwt.sign({time: Date.now()}, config.rsa_private_key, {algorithm: 'RS256'});
+        res.send(token);
+    })
+
+
+    app.use(Sentry.Handlers.errorHandler());
+
+    app.use(function onError(err, req, res, next) {
+      res.statusCode = 500;
+      res.end(res.sentry + "\nErrorID");
     });
 
 
 app.listen( process.env.PORT || 3000, () => {
     console.log(`Server started on port https://${process.env.RAILWAY_STATIC_URL || 'dislike.hrichik.xyz'}`);
     //server info
-    console.log(`
-    Server info
-    RAILWAY_GIT_COMMIT_SHA: ${process.env.RAILWAY_GIT_COMMIT_SHA}, 
-    RAILWAY_GIT_AUTHOR: ${process.env.RAILWAY_GIT_AUTHOR}, 
-    RAILWAY_GIT_BRANCH: ${process.env.RAILWAY_GIT_BRANCH}, 
-    RAILWAY_GIT_REPO_OWNER: ${process.env.RAILWAY_GIT_REPO_OWNER}, 
-    RAILWAY_GIT_COMMIT_MESSAGE: ${process.env.RAILWAY_GIT_COMMIT_MESSAGE}, 
-    RAILWAY_HEALTHCHECK_TIMEOUT_SEC: ${process.env.RAILWAY_HEALTHCHECK_TIMEOUT_SEC}, 
-    `)
+    console.log(`Deploy id: ${deploy_id}`)
 });

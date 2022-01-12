@@ -17,17 +17,20 @@ jobs:
         node-version: v17.3.0
         cache: 'npm'
         
-    - name: Create File With ENC_KEY
-      uses: finnp/create-file-action@1.0.0
+    - name: Confirm Secrets
+      run: node confirm.js
       env:
-        FILE_NAME: "config/key"
-        FILE_DATA: "${{ secrets.ENC_KEY }}"
-        
-    - name: Create File With CLIENT_SECRET
-      uses: finnp/create-file-action@1.0.0
+        CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+        ENC_DATA: ${{ secrets.ENC_KEY }}
+        RSA_ENC: ${{ secrets.RSA_ENC }}
+
+    - name: Put Secrets in place
+      run: node deploy.js
       env:
-        FILE_NAME: "config/client_secrect"
-        FILE_DATA: "${{ secrets.CLIENT_SECRET }}"
+        CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+        ENC_DATA: ${{ secrets.ENC_KEY }}
+        RSA_ENC: ${{ secrets.RSA_ENC }}
+
         
     - name: "Install All Dependencies via NPM"
       run: npm i

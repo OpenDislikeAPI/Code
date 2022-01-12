@@ -5,11 +5,12 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "confirm": "node confirm.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/OpenDislikeAPI/Code.git"
+    "url": "https://github.com/OpenDislikeAPI/Code.git"
   },
   "keywords": [
     "youtube",
@@ -22,6 +23,8 @@
   },
   "homepage": "https://github.com/OpenDislikeAPI/Code#readme",
   "dependencies": {
+    "@sentry/node": "^6.16.1",
+    "@sentry/tracing": "^6.16.1",
     "cors": "^2.8.5",
     "express": "^4.17.2",
     "googleapis": "^92.0.0",
