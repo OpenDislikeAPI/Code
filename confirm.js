@@ -1,9 +1,5 @@
 const crypto = require('crypto')
-const fs = require('fs')
-const path = require('path');
-const { msToSec } = require('@sentry/tracing/dist/utils');
 const enc_key = process.env.ENC_KEY
-const client_secret = process.env.CLIENT_SECRET
 const rsa_private_key = process.env.RSA_ENC
 const pubKeyObject = crypto.createPublicKey({
     key: rsa_private_key,
