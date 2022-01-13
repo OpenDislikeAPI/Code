@@ -106,6 +106,7 @@ dist
 # Environment Secrets
 config/keydev
 config/client_secretdev
+config/private.pemdev
 
 # ignore plz
 /ignoreplz/

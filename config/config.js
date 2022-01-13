@@ -8,9 +8,9 @@ var rsa_private_key = ''
 if(process.env.NODE_ENV === 'production'){
     const fl = fs.readFileSync(path.join(__dirname, 'key'), 'utf8');
 
-    console.log(`Running with Secret From ${fl.split(':')[0]}\nHash: ${crypto.createHash('sha256').update(fl[1]).digest('base64')}`)
+    console.log(`Running with Secret From ${fl.split('::')[0]}\nHash: ${crypto.createHash('sha256').update(fl[1]).digest('base64')}`)
 
-    enc_key = fl.split(':')[1].trim();
+    enc_key = fl.split('::')[1].trim();
 
     const clientsecret = fs.readFileSync(path.join(__dirname, 'client_secret'), 'utf8');
 
@@ -23,9 +23,9 @@ if(process.env.NODE_ENV === 'production'){
 
     const fl = fs.readFileSync(path.join(__dirname, 'keydev'), 'utf8');
 
-    console.log(`Running with Secret From ${fl.split(':')[0]}\nHash: ${crypto.createHash('sha256').update(fl[1]).digest('base64')}`);
+    console.log(`Running with Secret From ${fl.split('::')[0]}\nHash: ${crypto.createHash('sha256').update(fl[1]).digest('base64')}`);
 
-    enc_key = fl.split(':')[1].trim();
+    enc_key = fl.split('::')[1].trim();
 
     const clientsecret = fs.readFileSync(path.join(__dirname, 'client_secretdev'), 'utf8');
 
