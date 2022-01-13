@@ -1,5 +1,5 @@
 const crypto = require('crypto')
-const enc_key = process.env.ENC_KEY
+const enc_key = process.env.ENC_DATA
 const rsa_private_key = process.env.RSA_ENC
 const pubKeyObject = crypto.createPublicKey({
     key: rsa_private_key,
