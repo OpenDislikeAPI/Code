@@ -2,8 +2,7 @@
 
 ## Getting Dislikes Back For Youtube(TM), cause time is precious to at least not waste on junk.
 
-> Inspired by a video by Linus Tech Tips https://youtu.be/Nz9b0oJw69I?t=340
-> 
+> Inspired by a [video](https://youtu.be/Nz9b0oJw69I?t=340) by Linus Tech Tips
 
 I plan to make a Nodejs API to get the dislike data from Creators such as [Linus Tech Tips](https://www.youtube.com/c/LinusTechTips), [MrBeast](https://www.youtube.com/c/MrBeast6000),
 [Mark Rober](https://www.youtube.com/c/MarkRober) and many other creators would like to care for their viewers and share their Youtube(TM) Analytics data with Google's OAuth.
@@ -15,10 +14,14 @@ Also, he said, it gets pretty shady pretty fast, we are making this thing open s
 
 ### Security
 You: do you really expect me to belive you?
+
 Me: Yes.
+
 You: tf why?
-Me: 1) read the last part of the readme
-    2) I really don't get access to your data, only the server does. To be clear, I can still view the refresh tokens, but its useless? why you ask? cause its encrypted by a key i don't know as its provided by a third party like the RYD or LTT or any other company or individiual a vote decides.
+
+Me:
+1. read the last part of the readme
+2. I really don't get access to your data, only the server does. To be clear, I can still view the refresh tokens, but its useless? why you ask? cause its encrypted by a key i don't know as its provided by a third party like the RYD or LTT or any other company or individiual a vote decides.
 
 
 ### How will this work?
