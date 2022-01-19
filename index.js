@@ -59,7 +59,7 @@ const redisClient = createClient({
     // main code
 
     app.get('/', async (req, res) => {
-        res.send('Open Dislike API. More about it in https://github.com/OpenDislikeAPI/Code');
+        res.redirect('https://dislikes.hrichik.xyz');
     });
 
     app.get('/auth', async (req, res) => {
@@ -100,9 +100,9 @@ const redisClient = createClient({
 
     user.save((err, user) => {
         if (err) {
-            return res.send('Authentication failed!');
+            return res.send('Authentication failed! :( ');
         } else {
-            return res.send('You are now authenticated!');
+            return res.send('You are now authenticated!, now you may go and claim you are supporter of #BringBackDislikes gang :)');
         } 
     });
 })
