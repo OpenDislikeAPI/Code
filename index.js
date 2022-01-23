@@ -15,6 +15,7 @@ const fs = require('fs');
 const path = require('path');
 const { decrypt, encrypt } = require('./crypto');
 var jwt = require('jsonwebtoken');
+const { count } = require('console');
 
 Sentry.init({
     dsn: "https://ceb1cd8d2241419abfa643d56952be1c@o1111480.ingest.sentry.io/6140762",
@@ -60,6 +61,7 @@ const deploy_id = fs.readFileSync(path.join(__dirname, 'deploy_id'), 'utf8');
 
 app.get('/', async (req, res) => {
     res.redirect('https://dislikes.hrichik.xyz');
+    console.count('curious-people-redirected-to-homepage')
 });
 
 app.get('/auth', async (req, res) => {
@@ -69,7 +71,8 @@ app.get('/auth', async (req, res) => {
         scope: ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/youtube.readonly', 'https://www.googleapis.com/auth/yt-analytics.readonly'],
         prompt: 'consent'
     });
-    res.send(url);
+    res.redirect(url);
+    console.count('people-who-tried-authenticating')
 });
 
 app.get('/oauth2/callback', async (req, res) => {
@@ -80,6 +83,7 @@ app.get('/oauth2/callback', async (req, res) => {
         // set the credentials
         var authtoken = tokens;
 
+        try{
         // get email
         const creator_email = jwt.decode(authtoken.id_token).email;
 
@@ -100,16 +104,22 @@ app.get('/oauth2/callback', async (req, res) => {
 
         user.save((err, user) => {
             if (err) {
-                return res.redirect(
+                res.redirect(
                     "https://dislikes.hrichik.xyz/Authenticatication-Failed-ODA-4b4b418c8fbd4c0aade034fdba7c5a6b",
                     302
                 );
+                console.count('users-authenticatication-failed');
             } else {
-                return res.redirect(
-                    "https://dislikes.hrichik.xyz/You-Are-Authenticated-ODA-b2075ccb642a447188c2934fed2cb8bf"
+                res.redirect(
+                    "https://dislikes.hrichik.xyz/You-Are-Authenticated-ODA-b2075ccb642a447188c2934fed2cb8bf",
+                    302
                 );
+                console.count('users-authenticated');
             }
         });
+    } catch(err){
+        throw new Error(err)
+    }
     })
 });
 
@@ -122,7 +132,9 @@ app.get('/api/dislike', async (req, res) => {
     if (get != null && get != undefined) {
         const d = get.split(':')
         res.header('Cloudflare-CDN-Cache-Control', 'public, max-age=1200, stale-if-error=10800');
-        return res.status(200).send({ dislikes: d[0], likes: d[1] });
+        res.status(200).send({ dislikes: d[0], likes: d[1] });
+        console.count('cache-fetch')
+        console.count('requests-processed')
     } else {
         // get the tokens and get the real dislike count from yt-api
         Creator.findOne({ cid: cid }, async (err, user) => {
@@ -149,6 +161,8 @@ app.get('/api/dislike', async (req, res) => {
             const dislike_count = analytics.rows[0][1];
             const like_count = analytics.rows[0][2];
             res.status(200).send({ dislikes: dislike_count, likes: like_count });
+            console.count('youtube-fetch');
+            console.count('requests-processed');
             // save the dislike count in redis after sending the response
             await redisClient.set(id, `${dislike_count}:${like_count}`);
             await redisClient.expire(id, 10800);
@@ -159,6 +173,7 @@ app.get('/api/dislike', async (req, res) => {
 app.get('/brainfry/verify', async (req, res) => {
     const token = jwt.sign({ time: Date.now() }, config.rsa_private_key, { algorithm: 'RS256' });
     res.send(token);
+    console.count('paranoid-people-consoled') // get it? consoled... logged with console.count... ?? ah leave it, i am so un-funny...
 })
 
 
@@ -167,11 +182,14 @@ app.use(Sentry.Handlers.errorHandler());
 app.use(function onError(err, req, res, next) {
     res.statusCode = 500;
     res.end(res.sentry + "\nErrorID");
+    console.count('errors-logged')
+    console.log('error-trace-id: ', res.sentry)
 });
 
 
 app.listen(process.env.PORT || 3000, () => {
-    console.log(`Server started on port https://${process.env.RAILWAY_STATIC_URL || 'dislike.hrichik.xyz'}`);
-    //server info
+    console.log(`Server started on port https://${ 'dislike.hrichik.xyz' }`);
     console.log(`Deploy id: ${deploy_id}`)
+    console.log('\n')
+    console.log(`fire me the requests! I am ready ;)`)
 });
