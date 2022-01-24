@@ -35,4 +35,4 @@ jobs:
       run: npm i -g @railway/cli && railway up
       env: 
         RAILWAY_TOKEN: "${{ secrets.RAILWAY_TOKEN }}"
-        
+        DOMAIN: "${{ secrets.INDOMAIN }}"
