@@ -15,11 +15,10 @@ const fs = require("fs");
 const path = require("path");
 const { decrypt, encrypt } = require("./crypto");
 const jwt = require("jsonwebtoken");
-const cfip = require("./cloudflare/cf-ip");
 const ms = require("ms");
 const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
-
+var cloudflareIps = JSON.parse(fs.readFileSync('./cloudflare/ips.json', "utf8"));
 Sentry.init({
   dsn: "https://ceb1cd8d2241419abfa643d56952be1c@o1111480.ingest.sentry.io/6140762",
   integrations: [
@@ -47,7 +46,7 @@ redisClient.on("error", (err) => console.log("Redis Client Error", err));
 redisClient.on("ready", () => console.log("Redis Client Connected"));
 
 // trust cloudflare and railway proxy
-app.set("trust proxy", cfip(ip));
+app.set("trust proxy", ["loopback", ...cloudflareIps]);
 
 // init google oauth client
 const oauth2Client = new google.auth.OAuth2(
@@ -56,8 +55,13 @@ const oauth2Client = new google.auth.OAuth2(
   `${process.env.DOMAIN || "http://localhost:3000"}/oauth2/callback`
 );
 
+var deploy_id;
 // get the deploy id
-const deploy_id = fs.readFileSync(path.join(__dirname, "deploy_id"), "utf8");
+if (process.env.ENVIORMENT === "production") {
+  deploy_id = fs.readFileSync(path.join(__dirname, "deploy_id"), "utf8");
+} else {
+  deploy_id = "dev";
+}
 
 // main code
 
@@ -227,6 +231,5 @@ app.use(function onError(err, req, res, next) {
 app.listen(process.env.PORT || 3000, () => {
   console.log(`Server started on port https://${"dislike.hrichik.xyz"}`);
   console.log(`Deploy id: ${deploy_id}`);
-  console.log("\n");
   console.log(`fire me the requests! I am ready ;)`);
 });
