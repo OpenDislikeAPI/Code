@@ -30,10 +30,6 @@ jobs:
         CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
         ENC_DATA: ${{ secrets.ENC_KEY }}
         RSA_ENC: ${{ secrets.RSA_ENC }}
-
-        
-    - name: "Install All Dependencies via NPM"
-      run: npm i
     
     - name: "Install RailwayCLI and Deploy to railway"
       run: npm i -g @railway/cli && railway up
