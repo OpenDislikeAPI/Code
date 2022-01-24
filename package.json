@@ -6,8 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "confirm": "node confirm.js",
-    "update-cf-ips": "( async () => { console.log(await require(\"./cloudflare/update-list\").cfupdate() ? \"yo, theres a update, we just did, hrichik you should update the base repo\" : \"no update \") })()"
+    "confirm": "node confirm.js"
   },
   "repository": {
     "type": "git",
