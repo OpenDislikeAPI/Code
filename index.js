@@ -18,7 +18,9 @@ const jwt = require("jsonwebtoken");
 const ms = require("ms");
 const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
-var cloudflareIps = JSON.parse(fs.readFileSync('./cloudflare/ips.json', "utf8"));
+var cloudflareIps = JSON.parse(
+  fs.readFileSync("./cloudflare/ips.json", "utf8")
+);
 Sentry.init({
   dsn: "https://ceb1cd8d2241419abfa643d56952be1c@o1111480.ingest.sentry.io/6140762",
   integrations: [
@@ -45,8 +47,10 @@ const redisClient = createClient({
 redisClient.on("error", (err) => console.log("Redis Client Error", err));
 redisClient.on("ready", () => console.log("Redis Client Connected"));
 
-// trust cloudflare and railway proxy
-app.set("trust proxy", ["loopback", ...cloudflareIps]);
+// trust cloudflare and railway proxy (only for production)
+if (process.env.NODE_ENV === "production") {
+  app.set("trust proxy", ["loopback", ...cloudflareIps]);
+}
 
 // init google oauth client
 const oauth2Client = new google.auth.OAuth2(
@@ -75,6 +79,8 @@ app.use((req, res, next) => {
     } else {
       next();
     }
+  } else {
+    next();
   }
 });
 
@@ -229,6 +235,7 @@ app.use(function onError(err, req, res, next) {
 });
 
 app.listen(process.env.PORT || 3000, () => {
+  console.log(process.env.PORT);
   console.log(`Server started on port https://${"dislike.hrichik.xyz"}`);
   console.log(`Deploy id: ${deploy_id}`);
   console.log(`fire me the requests! I am ready ;)`);
