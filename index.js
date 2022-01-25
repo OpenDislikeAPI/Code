@@ -89,10 +89,9 @@ app.use((req, res, next) => {
 
 app.get("/", async (req, res) => {
   res.redirect("https://dislikes.hrichik.xyz");
- // if (req.ip != "::ffff:10.138.0.9") {
-     console.log(req);
+  if (req.hostname != "dislike.hrichik.xyz") {
     console.count("curious-people-redirected-to-homepage");
- // }
+  }
 });
 
 app.get("/auth", async (req, res) => {
