@@ -3,11 +3,8 @@ const express = require("express");
 const Sentry = require("@sentry/node");
 const Tracing = require("@sentry/tracing");
 const app = express();
-const bodyParser = require("body-parser");
-const cors = require("cors");
 const { google } = require("googleapis");
 const { createClient } = require("redis");
-const { auth } = require("google-auth-library");
 const { connect_db } = require("./db");
 const Creator = require("./models/Creator");
 const config = require("./config/config");
@@ -15,6 +12,7 @@ const fs = require("fs");
 const path = require("path");
 const { decrypt, encrypt } = require("./crypto");
 const jwt = require("jsonwebtoken");
+const { cfupdate } = require("./cloudflare/update-list");
 const ms = require("ms");
 const fetch = (...args) =>
   import("node-fetch").then(({ default: fetch }) => fetch(...args));
@@ -33,19 +31,33 @@ Sentry.init({
 app.use(Sentry.Handlers.requestHandler());
 app.use(Sentry.Handlers.tracingHandler());
 
+setInterval(async () => {
+  const checkforupdate = await cfupdate();
+  if (checkforupdate) {
+    console.log("Cloudflare IP list updated");
+  } else {
+    console.log("No updates to cloudflare IP list");
+  }
+}, ms("1day"));
+
 //connect to mongodb
-connect_db();
+(async () => {
+  connect_db();
+})();
 
 //connect to redis
 const redisClient = createClient({
   url: process.env.REDIS_URL,
 });
+
 (async () => {
   await redisClient.connect();
 })();
 
 redisClient.on("error", (err) => console.log("Redis Client Error", err));
-redisClient.on("ready", () => console.log("Redis Client Connected"));
+redisClient.on("ready", () => {
+  console.log("Redis Client Connected");
+});
 
 // trust cloudflare and railway proxy (only for production)
 if (process.env.NODE_ENV === "production") {
@@ -72,8 +84,8 @@ if (process.env.ENVIORMENT === "production") {
 app.use((req, res, next) => {
   if (process.env.ENVIORMENT === "production") {
     if (
-      req.hostname != "dislike.hrichik.xyz" &&
-      req.ip != "::ffff:10.138.0.9"
+      req.hostname != "dislike.hrichik.xyz" && // if the hostname is not the main domain
+      req.headers["x-forwarded-for"] != '34.83.55.32' // railway backend ip should be allowed
     ) {
       console.count("evil-people-trying-to-find-internal-domain");
       console.log("ip:", req.ip);
@@ -89,7 +101,7 @@ app.use((req, res, next) => {
 
 app.get("/", async (req, res) => {
   res.redirect("https://dislikes.hrichik.xyz");
-  if (req.hostname != "dislike.hrichik.xyz") {
+  if (req.headers["x-forwarded-for"] != '34.83.55.32') {
     console.count("curious-people-redirected-to-homepage");
   }
 });
@@ -239,7 +251,7 @@ app.use(function onError(err, req, res, next) {
 });
 
 app.listen(process.env.PORT || 3000, () => {
-  console.log(`Server started on port https://${"dislike.hrichik.xyz"}`);
+  console.log(`Server started on: https://${"dislike.hrichik.xyz"}`);
   console.log(`Deploy id: ${deploy_id}`);
   console.log(`fire me the requests! I am ready ;)`);
 });
