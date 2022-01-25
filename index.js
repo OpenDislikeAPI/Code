@@ -71,7 +71,10 @@ if (process.env.ENVIORMENT === "production") {
 
 app.use((req, res, next) => {
   if (process.env.ENVIORMENT === "production") {
-    if (req.hostname != "dislike.hrichik.xyz") {
+    if (
+      req.hostname != "dislike.hrichik.xyz" &&
+      req.ip != "::ffff:10.138.0.9"
+    ) {
       console.count("evil-people-trying-to-find-internal-domain");
       console.log("ip:", req.ip);
       console.log("useragent:", req.headers["user-agent"]);
@@ -86,7 +89,9 @@ app.use((req, res, next) => {
 
 app.get("/", async (req, res) => {
   res.redirect("https://dislikes.hrichik.xyz");
+  if (req.ip != "::ffff:10.138.0.9") {
   console.count("curious-people-redirected-to-homepage");
+  }
 });
 
 app.get("/auth", async (req, res) => {
@@ -222,7 +227,6 @@ app.get("/brainfry/verify", async (req, res) => {
 
 app.get("/fine", async (req, res) => {
   res.status(200).send("fine");
-  console.log(req.ip, 'requested the healthcheck');
 });
 
 app.use(Sentry.Handlers.errorHandler());
