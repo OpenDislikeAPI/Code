@@ -222,7 +222,7 @@ app.get("/brainfry/verify", async (req, res) => {
 
 app.get("/fine", async (req, res) => {
   res.status(200).send("fine");
-  console.log(req.ip);
+  console.log(req.ip, 'requested the healthcheck');
 });
 
 app.use(Sentry.Handlers.errorHandler());
@@ -235,7 +235,6 @@ app.use(function onError(err, req, res, next) {
 });
 
 app.listen(process.env.PORT || 3000, () => {
-  console.log(process.env.PORT);
   console.log(`Server started on port https://${"dislike.hrichik.xyz"}`);
   console.log(`Deploy id: ${deploy_id}`);
   console.log(`fire me the requests! I am ready ;)`);
