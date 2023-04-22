@@ -1,3 +1,6 @@
+> # This project has been archived. To know more https://github.com/Anarios/return-youtube-dislike/issues/392 and other mentioned issues. 
+> We'd got into a bit of a fight that time, i hope that has settled by now and they have a better system for collecting the dislikes from creators...
+
 # The OpenDislikeAPI Project
 
 ## Getting Dislikes Back For Youtube(TM), cause time is precious to at least not waste on junk.
@@ -28,7 +31,7 @@ Me:
 
 So basically the code would get the real stats from Youtube (or our database, whichever fresh or fresh enough to prevent us hitting rate limits) when any video from a YouTuber signed up with us is requested. We would use this method from the youtube API [https://developers.google.com/youtube/analytics/metrics#dislikes](https://developers.google.com/youtube/analytics/metrics#dislikes) (for that we would need the following scopes as told by docs: `https://www.googleapis.com/auth/youtubepartner`, `https://www.googleapis.com/auth/youtube`, `https://www.googleapis.com/auth/yt-analytics.readonly`) to get the dislikes to count for that specific video, also we would asynchronously store that value against the videoID in our database.
 
-### Ok, we got the data, what next?
+### Ok, we got the data, what's next?
 
 Now, we would store the data we needed i.e. the dislikes count in our [Redis](https://redis.io/) Cache. 
 
